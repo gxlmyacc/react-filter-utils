@@ -1,6 +1,6 @@
 # react-filter-utils
 
-filter utils for react"
+filter utils for react
 
 ## install
 
