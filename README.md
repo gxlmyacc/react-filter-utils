@@ -50,7 +50,7 @@ import filter from './filter.js';
 import { Select } from 'antd';
 
 function Test() {
-  const [value, setValue] = useState(null);
+  const [value, setValue] = useState('');
 
   useEffact(()=> {
     console.log(filter.KEY1, filter(filter.KEY1));
