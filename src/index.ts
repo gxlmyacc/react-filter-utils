@@ -22,7 +22,7 @@ interface Filter {
   createList(values: string[]): { value: FilterKeyType; label: string; }[];
 }
 
-function createFilter<T extends Partial<any>, V extends Partial<any>, E extends Partial<any>>(
+function createFilter<T extends Partial<any>, V, E extends Partial<any>>(
   map: FilterMap<T>,
   valueMap?: FilterValueMap<V>,
   options: FilterOptions<E> = {}
@@ -44,8 +44,12 @@ function createFilter<T extends Partial<any>, V extends Partial<any>, E extends 
     return list.filter(v => values.includes(v.value));
   };
 
+  type MapType = V extends Partial<any>
+    ? { [key in keyof V]: V[key] }
+    : { [key in keyof T]: T[key] };
+
   const filter: Filter
-    & ({ [key in keyof V]: V[key] } | { [key in keyof T]: T[key] })
+    & MapType
     & { [key in keyof E]: E[key] }
      = (options.filter || function (value: FilterKeyType) {
        let label = map[value as any];
@@ -64,7 +68,7 @@ function createFilter<T extends Partial<any>, V extends Partial<any>, E extends 
   }
   Object.keys(map).forEach(value => {
     if (!value) return;
-    const key = valueMap && /^\d+$/.test(value) ? valueMap[value] : value;
+    const key = valueMap && /^\d+$/.test(value) ? (valueMap as any)[value] : value;
     if (key === undefined) return;
     (filter as any)[key] = value;
   });
