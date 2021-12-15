@@ -1,5 +1,5 @@
 declare type FilterKeyType = string | number;
-declare type FilterMap<T extends Array<string>> = {
+declare type FilterMap<T extends Partial<any>> = {
     [key in keyof T]: FilterKeyType | {
         label: any;
     };
@@ -13,7 +13,7 @@ declare type FilterOptions = {
 interface Filter {
     (value: FilterKeyType): string;
 }
-declare function createFilter<T extends Array<string> = [], E extends Object = {}>(map: FilterMap<T>, valueMap?: FilterValueMap, options?: FilterOptions): Filter | {
+declare function createFilter<T extends Partial<any> = {}, E extends Object = {}>(map: FilterMap<T>, valueMap?: FilterValueMap, options?: FilterOptions): Filter | {
     list: {
         value: FilterKeyType;
         label: string;
