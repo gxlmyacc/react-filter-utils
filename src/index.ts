@@ -2,16 +2,16 @@
 type FilterKeyType = string|number;
 
 type FilterMap<T extends Partial<any>> = {
-  [P in keyof T]: T[P]
+  [key in keyof T]: T[key]
 }
 
-type FilterValueMap = {
-  [key: string]: string;
+type FilterValueMap<T extends Partial<any>> = {
+  [key in keyof T]: T[key]
 }
 
 type FilterOptions<E> = {
   filter?: (value: FilterKeyType) => string;
-  external?: { [key in keyof E]: E[key]}
+  external?: { [key in keyof E]: E[key] }
    |((filter: Filter) => { [key in keyof E]: E[key] })
 }
 
@@ -22,9 +22,9 @@ interface Filter {
   createList(values: string[]): { value: FilterKeyType; label: string; }[];
 }
 
-function createFilter<T extends Partial<any> = {}, E extends Partial<any> = {}>(
+function createFilter<T extends Partial<any>, V extends Partial<any>, E extends Partial<any>>(
   map: FilterMap<T>,
-  valueMap: FilterValueMap = {},
+  valueMap?: FilterValueMap<V>,
   options: FilterOptions<E> = {}
 ) {
   const list = Object.keys(map).map((value: string) => {
@@ -44,10 +44,14 @@ function createFilter<T extends Partial<any> = {}, E extends Partial<any> = {}>(
     return list.filter(v => values.includes(v.value));
   };
 
-  const filter: Filter & {
-    [P in keyof T]: T[P]
-  } & {
-    [P in keyof E]: E[P]
+  type MapType = typeof valueMap extends null
+    ? { [key in keyof T]: T[key] }
+    : typeof valueMap extends undefined
+      ? { [key in keyof T]: T[key] }
+      : { [key in keyof V]: V[key] }
+
+  const filter: Filter & MapType & {
+    [key in keyof E]: E[key]
   } = (options.filter || function (value: FilterKeyType) {
     let label = map[value as any];
     if (!label) return '';
@@ -57,9 +61,15 @@ function createFilter<T extends Partial<any> = {}, E extends Partial<any> = {}>(
   (filter as any).list = list;
   (filter as any).createList = createList;
 
+  if (valueMap) {
+    valueMap = Object.keys(valueMap).reduce((p: any, key: string) => {
+      p[(valueMap as any)[key]] = key;
+      return p;
+    }, {}) as any;
+  }
   Object.keys(map).forEach(value => {
     if (!value) return;
-    const key = /^\d+$/.test(value) ? valueMap[value] : value;
+    const key = valueMap && /^\d+$/.test(value) ? valueMap[value] : value;
     if (key === undefined) return;
     (filter as any)[key] = value;
   });
