@@ -24,13 +24,19 @@ const map = {
   KEY3: 'key3label',
 };
 
-const extends = {
+const _external = {
   something(v) {
     console.log(v)
   }
 };
 
-const filter = createFilter<['KEY1', 'KEY2', 'KEY3'], extends>(map);
+const filter = createFilter(map, null {
+  external: _external,
+  // or
+  external(filter) {
+    return _external
+  }
+});
 
 Object.assign(filter, extends);
 
@@ -50,6 +56,8 @@ function Test() {
 
   useEffact(()=> {
     console.log(filter.KEY1, filter(filter.KEY1));
+    
+    filter.something();
   }, []);
 
   return (

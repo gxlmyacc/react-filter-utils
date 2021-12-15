@@ -9,8 +9,10 @@ type FilterValueMap = {
   [key: string]: string;
 }
 
-type FilterOptions = {
+type FilterOptions<E> = {
   filter?: (value: FilterKeyType) => string;
+  external?: { [key in keyof E]: E[key]}
+   |((filter: Filter) => { [key in keyof E]: E[key] })
 }
 
 interface Filter {
@@ -20,11 +22,10 @@ interface Filter {
   createList(values: string[]): { value: FilterKeyType; label: string; }[];
 }
 
-
 function createFilter<T extends Partial<any> = {}, E extends Partial<any> = {}>(
   map: FilterMap<T>,
   valueMap: FilterValueMap = {},
-  options: FilterOptions = {}
+  options: FilterOptions<E> = {}
 ) {
   const list = Object.keys(map).map((value: string) => {
     let label = map[value as any];
@@ -62,6 +63,12 @@ function createFilter<T extends Partial<any> = {}, E extends Partial<any> = {}>(
     if (key === undefined) return;
     (filter as any)[key] = value;
   });
+
+  let external = options.external;
+  if (external) {
+    if (typeof external === 'function') external = external(filter);
+    external && Object.assign(filter, external);
+  }
 
   return filter;
 }
