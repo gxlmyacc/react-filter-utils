@@ -38,8 +38,6 @@ const filter = createFilter(map, null {
   }
 });
 
-Object.assign(filter, extends);
-
 export default filter;
 
 ```
