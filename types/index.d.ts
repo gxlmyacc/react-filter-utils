@@ -24,5 +24,5 @@ interface Filter {
         label: string;
     }[];
 }
-declare function createFilter<T extends Partial<any>, V extends Partial<any>, E extends Partial<any>>(map: FilterMap<T>, valueMap?: FilterValueMap<V>, options?: FilterOptions<E>): Filter & (FilterValueMap<V> | undefined extends null ? { [key in keyof T]: T[key]; } : FilterValueMap<V> | undefined extends undefined ? { [key_1 in keyof T]: T[key_1]; } : { [key_2 in keyof V]: V[key_2]; }) & { [key_3 in keyof E]: E[key_3]; };
+declare function createFilter<T extends Partial<any>, V extends Partial<any>, E extends Partial<any>>(map: FilterMap<T>, valueMap?: FilterValueMap<V>, options?: FilterOptions<E>): Filter & ({ [key in keyof V]: V[key]; } | { [key_1 in keyof T]: T[key_1]; }) & { [key_2 in keyof E]: E[key_2]; };
 export { createFilter, };

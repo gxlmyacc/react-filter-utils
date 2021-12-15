@@ -44,19 +44,14 @@ function createFilter<T extends Partial<any>, V extends Partial<any>, E extends 
     return list.filter(v => values.includes(v.value));
   };
 
-  type MapType = typeof valueMap extends null
-    ? { [key in keyof T]: T[key] }
-    : typeof valueMap extends undefined
-      ? { [key in keyof T]: T[key] }
-      : { [key in keyof V]: V[key] }
-
-  const filter: Filter & MapType & {
-    [key in keyof E]: E[key]
-  } = (options.filter || function (value: FilterKeyType) {
-    let label = map[value as any];
-    if (!label) return '';
-    return typeof label === 'object' ? label.label : label;
-  }) as any;
+  const filter: Filter
+    & ({ [key in keyof V]: V[key] } | { [key in keyof T]: T[key] })
+    & { [key in keyof E]: E[key] }
+     = (options.filter || function (value: FilterKeyType) {
+       let label = map[value as any];
+       if (!label) return '';
+       return typeof label === 'object' ? label.label : label;
+     }) as any;
 
   (filter as any).list = list;
   (filter as any).createList = createList;
