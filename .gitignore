@@ -1,0 +1,17 @@
+.idea/
+node_modules/
+temp/
+*/.idea/
+*/node_modules/
+analyzer/
+*/analyzer/
+.DS_Store
+*/.DS_Store
+plugin/
+esm
+es
+.history/
+drawer/esm
+drawer/es
+dist
+
