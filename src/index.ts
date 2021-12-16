@@ -10,7 +10,7 @@ type FilterValueMap<T extends Partial<any>> = {
 }
 
 type FilterOptions<E> = {
-  filter?: (value: FilterKeyType) => string;
+  filter?: (value: FilterKeyType, ...args: any[]) => string;
   external?: { [key in keyof E]: E[key] }
    |((filter: Filter) => { [key in keyof E]: E[key] })
 }
@@ -48,14 +48,13 @@ function createFilter<T extends Partial<any>, V, E extends Partial<any>>(
     ? { [key in keyof V]: V[key] }
     : { [key in keyof T]: T[key] };
 
-  const filter: Filter
-    & MapType
-    & { [key in keyof E]: E[key] }
-     = (options.filter || function (value: FilterKeyType) {
-       let label = map[value as any];
-       if (!label) return '';
-       return typeof label === 'object' ? label.label : label;
-     }) as any;
+  type FilterType = Filter & MapType & { [key in keyof E]: E[key] };
+
+  const filter: FilterType = (options.filter || function (value: FilterKeyType) {
+    let label = map[value as any];
+    if (!label) return '';
+    return typeof label === 'object' ? label.label : label;
+  }) as any;
 
   (filter as any).list = list;
   (filter as any).createList = createList;
