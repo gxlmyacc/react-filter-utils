@@ -12,7 +12,7 @@ type FilterValueMap<T extends Partial<any>> = {
 type FilterOptions<E> = {
   filter?: (value: FilterKeyType, ...args: any[]) => string;
   external?: { [key in keyof E]: E[key] }
-   |((filter: Filter) => { [key in keyof E]: E[key] })
+   |((this: FilterEx, filter: FilterEx) => { [key in keyof E]: E[key] })
 }
 
 interface Filter {
@@ -20,6 +20,10 @@ interface Filter {
 
   list: { value: FilterKeyType; label: string; }[];
   createList(values: string[]): { value: FilterKeyType; label: string; }[];
+}
+
+interface FilterEx extends Filter {
+  [key: string]: any;
 }
 
 function createFilter<T extends Partial<any>, V, E extends Partial<any>>(
@@ -74,7 +78,7 @@ function createFilter<T extends Partial<any>, V, E extends Partial<any>>(
 
   let external = options.external;
   if (external) {
-    if (typeof external === 'function') external = external(filter);
+    if (typeof external === 'function') external = external.call(filter, filter);
     external && Object.assign(filter, external);
   }
 
