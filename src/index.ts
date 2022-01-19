@@ -71,7 +71,7 @@ function createFilter<T extends Partial<any>, V, E extends Partial<any>>(
   }
   Object.keys(map).forEach(value => {
     if (!value) return;
-    const key = valueMap && /^\d+$/.test(value) ? (valueMap as any)[value] : value;
+    const key = valueMap ? (valueMap as any)[value] : value;
     if (key === undefined) return;
     (filter as any)[key] = value;
   });
