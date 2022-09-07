@@ -1,35 +1,39 @@
 
-type FilterKeyType = string|number;
+export type FilterKeyType = string|number;
 
-type FilterMap<T extends Partial<any>> = {
+export type CreateFilterMap<T extends Record<string, any>> = {
   [key in keyof T]: T[key]
 }
 
-type FilterValueMap<T extends Partial<any>> = {
+export type CreateFilterValueMap<T extends Record<string, any>> = {
   [key in keyof T]: T[key]
 }
 
-type FilterOptions<E> = {
+export type CreateFilterOptions<E> = {
   filter?: (value: FilterKeyType, ...args: any[]) => string;
   external?: { [key in keyof E]: E[key] }
    |((this: FilterEx, filter: FilterEx) => { [key in keyof E]: E[key] })
 }
 
-interface Filter {
+export interface FilterListItem<T extends FilterKeyType = FilterKeyType> {
+  value: T;
+  label: string;
+}
+ interface Filter {
   (value: FilterKeyType): string;
 
-  list: { value: FilterKeyType; label: string; }[];
-  createList(values: string[]): { value: FilterKeyType; label: string; }[];
+  list: FilterListItem[];
+  createList(values: string[]): FilterListItem[];
 }
 
 interface FilterEx extends Filter {
   [key: string]: any;
 }
 
-function createFilter<T extends Partial<any>, V, E extends Partial<any>>(
-  map: FilterMap<T>,
-  valueMap?: FilterValueMap<V>,
-  options: FilterOptions<E> = {}
+function createFilter<T extends Record<string, any>, V  extends Record<string, any>, E extends Record<string, any>>(
+  map: CreateFilterMap<T>,
+  valueMap?: CreateFilterValueMap<V>,
+  options: CreateFilterOptions<E> = {}
 ) {
   const list = Object.keys(map).map((value: string) => {
     let label = map[value as any];
@@ -86,5 +90,7 @@ function createFilter<T extends Partial<any>, V, E extends Partial<any>>(
 }
 
 export {
+  FilterEx as Filter,
+
   createFilter,
 };
