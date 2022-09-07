@@ -5,7 +5,7 @@ export type CreateFilterMap<T extends Record<string, any>> = {
   [key in keyof T]: T[key]
 }
 
-export type CreateFilterValueMap<T extends Record<string, any>> = {
+export type CreateFilterValueMap<T> = {
   [key in keyof T]: T[key]
 }
 
@@ -30,7 +30,7 @@ interface FilterEx extends Filter {
   [key: string]: any;
 }
 
-function createFilter<T extends Record<string, any>, V  extends Record<string, any>, E extends Record<string, any>>(
+function createFilter<T extends Partial<any>, V, E extends Record<string, any>>(
   map: CreateFilterMap<T>,
   valueMap?: CreateFilterValueMap<V>,
   options: CreateFilterOptions<E> = {}
@@ -52,7 +52,7 @@ function createFilter<T extends Record<string, any>, V  extends Record<string, a
     return list.filter(v => values.includes(v.value));
   };
 
-  type MapType = V extends Partial<any>
+  type MapType = V extends Record<string, any>
     ? { [key in keyof V]: V[key] }
     : { [key in keyof T]: T[key] };
 
