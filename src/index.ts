@@ -1,7 +1,7 @@
 
 export type FilterKeyType = string|number;
 
-export type CreateFilterMap<T extends Record<string, any>> = {
+export type CreateFilterMap<T> = {
   [key in keyof T]: T[key]
 }
 
@@ -30,13 +30,13 @@ interface FilterEx extends Filter {
   [key: string]: any;
 }
 
-function createFilter<T extends Partial<any>, V, E extends Record<string, any>>(
+function createFilter<T, V, E>(
   map: CreateFilterMap<T>,
   valueMap?: CreateFilterValueMap<V>,
   options: CreateFilterOptions<E> = {}
 ) {
   const list = Object.keys(map).map((value: string) => {
-    let label = map[value as any];
+    let label = (map as Partial<any>)[value as any];
     let rest: Partial<any> = {};
     if (label && typeof label === 'object') {
       let labelObj = label as Partial<any>;
@@ -59,7 +59,7 @@ function createFilter<T extends Partial<any>, V, E extends Record<string, any>>(
   type FilterType = Filter & MapType & { [key in keyof E]: E[key] };
 
   const filter: FilterType = (options.filter || function (value: FilterKeyType) {
-    let label = map[value as any];
+    let label = (map as Partial<any>)[value as any];
     if (!label) return '';
     return typeof label === 'object' ? label.label : label;
   }) as any;
@@ -67,17 +67,16 @@ function createFilter<T extends Partial<any>, V, E extends Record<string, any>>(
   (filter as any).list = list;
   (filter as any).createList = createList;
 
-  if (valueMap) {
-    valueMap = Object.keys(valueMap).reduce((p: any, key: string) => {
-      p[(valueMap as any)[key]] = key;
+  if (!valueMap) {
+    valueMap = Object.keys(map).reduce((p, key) => {
+      if (key) p[key] = key;
       return p;
-    }, {}) as any;
+    }, {} as Record<string, any>) as any;
   }
-  Object.keys(map).forEach(value => {
-    if (!value) return;
-    const key = valueMap ? (valueMap as any)[value] : value;
-    if (key === undefined) return;
-    (filter as any)[key] = value;
+
+  Object.keys((valueMap as Record<string, any>)).forEach(key => {
+    if (!key) return;
+    (filter as any)[key] = (valueMap as Record<string, any>)[key];
   });
 
   let external = options.external;
