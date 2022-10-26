@@ -54,7 +54,7 @@ function createFilter<T, V, E>(
 
   type MapType = V extends Record<string, any>
     ? { [key in keyof V]: V[key] }
-    : { [key in keyof T]: T[key] };
+    : { [key in keyof T]: key };
 
   type FilterType = Filter & MapType & { [key in keyof E]: E[key] };
 

@@ -25,5 +25,5 @@ interface Filter {
 interface FilterEx extends Filter {
     [key: string]: any;
 }
-declare function createFilter<T, V, E>(map: CreateFilterMap<T>, valueMap?: CreateFilterValueMap<V>, options?: CreateFilterOptions<E>): Filter & (V extends Record<string, any> ? { [key in keyof V]: V[key]; } : { [key_1 in keyof T]: T[key_1]; }) & { [key_2 in keyof E]: E[key_2]; };
+declare function createFilter<T, V, E>(map: CreateFilterMap<T>, valueMap?: CreateFilterValueMap<V>, options?: CreateFilterOptions<E>): Filter & (V extends Record<string, any> ? { [key in keyof V]: V[key]; } : { [key_1 in keyof T]: key_1; }) & { [key_2 in keyof E]: E[key_2]; };
 export { FilterEx as Filter, createFilter, };
