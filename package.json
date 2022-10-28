@@ -1,6 +1,6 @@
 {
   "name": "react-filter-utils",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "filter utils for react",
   "keywords": [
     "react",
@@ -82,7 +82,7 @@
     "friendly-errors-webpack-plugin": "^1.7.0",
     "jsx-loader": "^0.13.2",
     "progress-bar-webpack-plugin": "^1.12.1",
-    "typescript": "^4.1.2",
+    "typescript": "^4.8.4",
     "uglifyjs-webpack-plugin": "^2.1.3",
     "webpack": "^4.35.3",
     "webpack-bundle-analyzer": "^3.4.1",
