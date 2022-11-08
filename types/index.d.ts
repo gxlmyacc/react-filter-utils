@@ -12,10 +12,10 @@ declare type CreateFilterOptions<F extends Function, E, T extends Record<string,
     onWalkListItem?: (item: FilterListItem<T, V>, index: number) => void | boolean | Record<string, any>;
 };
 declare type FilterListItem<T, V> = {
-    value: V extends Record<string, infer U> ? U : keyof T;
-    label: string;
+    readonly value: V extends Record<string, infer U> ? U : keyof T;
+    readonly label: string;
 } & (T[keyof T] extends Record<string, any> ? T[keyof T] : {});
-declare type FilterFunc<T extends Record<string, any>, V> = (value: V extends Record<string, infer U> ? U : keyof T) => string;
+declare type FilterFunc<T extends Record<string, any>, V> = (value: V extends Record<string, infer U> ? U : keyof T, defaultLabel?: string) => string;
 interface Filter<T extends Record<string, any>, V, F> {
     (...args: Parameters<F extends FilterFunc<T, V> ? F : FilterFunc<T, V>>): string;
     list: FilterListItem<T, V>[];

@@ -17,8 +17,8 @@ type CreateFilterOptions<F extends Function, E, T extends Record<string, any>, V
 
 
 type FilterListItem<T, V> = {
-  value: V extends Record<string, infer U> ? U : keyof T;
-  label: string;
+  readonly value: V extends Record<string, infer U> ? U : keyof T;
+  readonly label: string;
 } & (
   T[keyof T] extends Record<string, any>
     ? T[keyof T]
@@ -26,7 +26,10 @@ type FilterListItem<T, V> = {
 )
 
 
-type FilterFunc<T extends Record<string, any>, V> = (value: V extends Record<string, infer U> ? U : keyof T) => string;
+type FilterFunc<T extends Record<string, any>, V> = (
+  value: V extends Record<string, infer U> ? U : keyof T,
+  defaultLabel?: string
+) => string;
 
 interface Filter<T extends Record<string, any>, V, F> {
   (...args: Parameters<F extends FilterFunc<T, V> ? F : FilterFunc<T, V>>): string;
@@ -47,8 +50,22 @@ function createFilter<
   valueMap?: V,
   options: CreateFilterOptions<F, E, T, V> = {}
 ) {
+  type MapType = V extends Record<string, any>
+  ? { [key in keyof V]: V[key] }
+  : { [key in keyof T]: key };
+
+  type FilterType = Filter<T, V, F> & MapType & { [key in keyof E]: E[key] };
+
+  const filter: FilterType = (options.filter || function (value: FilterKeyType, defaultLabel: string = '') {
+    let label = (map as Record<string, any>)[value as any];
+    if (!label) return defaultLabel;
+    return typeof label === 'object' ? (label.label || defaultLabel) : label;
+  }) as any;
+
+  (filter as any).map = map;
+
   const list = Object.keys(map).map((value: string, index: number) => {
-    let label = map[value];
+    let label = filter.map[value];
     const rest: Record<string, any> = {};
     if (label && isPlainObject(label)) {
       const labelObj = label;
@@ -63,25 +80,13 @@ function createFilter<
     return isPlainObject(isContinue) ? isContinue : item;
   }).filter(Boolean);
 
+  (filter as any).list = list;
+
   const createList = function (values?: FilterKeyType[]) {
-    return list.filter(v => !values || values.includes((v as any).value));
+    return filter.list.filter(v => !values || values.includes((v as any).value));
   };
 
-  type MapType = V extends Record<string, any>
-    ? { [key in keyof V]: V[key] }
-    : { [key in keyof T]: key };
-
-  type FilterType = Filter<T, V, F> & MapType & { [key in keyof E]: E[key] };
-
-  const filter: FilterType = (options.filter || function (value: FilterKeyType) {
-    let label = (map as Record<string, any>)[value as any];
-    if (!label) return '';
-    return typeof label === 'object' ? label.label : label;
-  }) as any;
-
-  (filter as any).list = list;
   (filter as any).createList = createList;
-  (filter as any).map = map;
 
   if (!valueMap) {
     valueMap = Object.keys(map).reduce((p, key) => {
@@ -92,13 +97,19 @@ function createFilter<
 
   Object.keys((valueMap as Record<string, any>)).forEach(key => {
     if (!key) return;
-    (filter as any)[key] = (valueMap as Record<string, any>)[key];
+    const d = Object.getOwnPropertyDescriptor(valueMap, key);
+    if (d) Object.defineProperty(filter, key, d);
   });
 
   let external = options.external;
   if (external) {
     if (typeof external === 'function') external = external.call(filter, filter);
-    external && Object.assign(filter, external);
+    if (external) {
+      Object.getOwnPropertyNames(external).forEach(key => {
+        const d = Object.getOwnPropertyDescriptor(external, key);
+        d && Object.defineProperty(filter, key, d);
+      });
+    }
   }
 
   return filter;
