@@ -19,13 +19,13 @@ yarn add react-filter-utils
 ## usage
 
 ```js
-// a filter.js
+// filter.js
 import { createFilter } from 'react-filter-utils';
 
 const map = {
-  KEY1: 'key1 label',
-  KEY2: 'key2 label',
-  KEY3: 'key3label',
+  YES: 'yes',
+  NO: 'no',
+  OTHER: 'other options',
 };
 
 const _external = {
@@ -35,6 +35,39 @@ const _external = {
 };
 
 const filter = createFilter(map, null {
+  external: _external,
+  // or
+  external(filter) {
+    return _external
+  }
+});
+
+export default filter;
+
+```
+or
+
+```js
+// filter.js
+import { createFilter } from 'react-filter-utils';
+
+const map = {
+  1: 'yes',
+  2: 'no',
+  3: 'other options',
+};
+
+const _external = {
+  something(v) {
+    console.log(v)
+  }
+};
+
+const filter = createFilter(map, {
+  YES: '1',
+  NO: '2',
+  OTHER: '3',
+} {
   external: _external,
   // or
   external(filter) {
@@ -57,8 +90,9 @@ function Test() {
   const [value, setValue] = useState('');
 
   useEffact(()=> {
-    console.log(filter.KEY1, filter(filter.KEY1));
+    console.log(/* value*/ filter.YES, /* label */ filter(filter.YES));
     
+    // call external method of the filter
     filter.something();
   }, []);
 
@@ -69,6 +103,7 @@ function Test() {
         onChange={value => setValue(value)}
       >
         {
+          // render list using filter
           filter.list.map(
             (item) => (<Select.Option key={item.value} value={item.value}>{item.label}</Select.Option>)
           )
