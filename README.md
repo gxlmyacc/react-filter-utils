@@ -18,6 +18,7 @@ yarn add react-filter-utils
 
 ## usage
 
+### 1. define a filter:
 ```js
 // filter.js
 import { createFilter } from 'react-filter-utils';
@@ -79,6 +80,7 @@ export default filter;
 
 ```
 
+### 2. use the filter:
 ```js
 // test.js
 
