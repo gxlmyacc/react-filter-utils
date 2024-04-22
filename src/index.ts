@@ -9,6 +9,7 @@ type FilterEx<T extends Record<string, any>, V, F> = Filter<T, V, F> & {
 
 
 type CreateFilterOptions<F extends Function, E, T extends Record<string, any>, V> = {
+  reverseList?: boolean,
   filter?: F;
   external?: { [key in keyof E]: E[key] }
    |((this: FilterEx<T, V, F>, filter: FilterEx<T, V, F>) => { [key in keyof E]: E[key] }),
@@ -17,8 +18,8 @@ type CreateFilterOptions<F extends Function, E, T extends Record<string, any>, V
 
 
 type FilterListItem<T, V> = {
-  readonly value: V extends Record<string, infer U> ? U : keyof T;
-  readonly label: string;
+  value: V extends Record<string, infer U> ? U : keyof T;
+  label: string;
 } & (
   T[keyof T] extends Record<string, any>
     ? T[keyof T]
@@ -64,7 +65,10 @@ function createFilter<
 
   (filter as any).map = map;
 
-  const list = Object.keys(map).map((value: string, index: number) => {
+  let keys = Object.keys(map);
+  if (options.reverseList) keys = keys.reverse();
+
+  const _createList = () => keys.map((value: string, index: number) => {
     let label = filter.map[value];
     const rest: Record<string, any> = {};
     if (label && isPlainObject(label)) {
@@ -80,7 +84,18 @@ function createFilter<
     return isPlainObject(isContinue) ? isContinue : item;
   }).filter(Boolean);
 
-  (filter as any).list = list;
+  let _list: ReturnType<typeof _createList>;
+  Object.defineProperty((filter as any), 'list', {
+    get() {
+      if (!_list) _list = _createList();
+      return _list;
+    },
+    set(v) {
+      _list = v;
+    },
+    configurable: true,
+    enumerable: true,
+  });
 
   const createList = function (values?: FilterKeyType[]) {
     return filter.list.filter(v => !values || values.includes((v as any).value));

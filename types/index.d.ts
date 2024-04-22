@@ -3,6 +3,7 @@ declare type FilterEx<T extends Record<string, any>, V, F> = Filter<T, V, F> & {
     [key: string]: any;
 };
 declare type CreateFilterOptions<F extends Function, E, T extends Record<string, any>, V> = {
+    reverseList?: boolean;
     filter?: F;
     external?: {
         [key in keyof E]: E[key];
@@ -12,8 +13,8 @@ declare type CreateFilterOptions<F extends Function, E, T extends Record<string,
     onWalkListItem?: (item: FilterListItem<T, V>, index: number) => void | boolean | Record<string, any>;
 };
 declare type FilterListItem<T, V> = {
-    readonly value: V extends Record<string, infer U> ? U : keyof T;
-    readonly label: string;
+    value: V extends Record<string, infer U> ? U : keyof T;
+    label: string;
 } & (T[keyof T] extends Record<string, any> ? T[keyof T] : {});
 declare type FilterFunc<T extends Record<string, any>, V> = (value: V extends Record<string, infer U> ? U : keyof T, defaultLabel?: string) => string;
 interface Filter<T extends Record<string, any>, V, F> {
