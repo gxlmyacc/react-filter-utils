@@ -1,6 +1,6 @@
 {
   "name": "react-filter-utils",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "filter utils for react",
   "keywords": [
     "react",
@@ -28,7 +28,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/gxlmyacc/react-filter-utils"
+    "url": "git+https://github.com/gxlmyacc/react-filter-utils.git"
   },
   "author": "gxlmyacc",
   "dependencies": {

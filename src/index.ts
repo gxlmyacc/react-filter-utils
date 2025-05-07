@@ -1,5 +1,9 @@
 
-import { isPlainObject } from './utils';
+import { isPlainObject, innumerable } from './utils';
+
+const REACT_FILTER_PREFIX = 'react-filter-utils:';
+const REACT_FILTER_KEY = `${REACT_FILTER_PREFIX}filter`;
+const REACT_FILTER_DEFAULT_FILTER = `${REACT_FILTER_PREFIX}default-filter`;
 
 type FilterKeyType = string|number;
 
@@ -20,6 +24,7 @@ type CreateFilterOptions<F extends Function, E, T extends Record<string, any>, V
 type FilterListItem<T, V> = {
   value: V extends Record<string, infer U> ? U : keyof T;
   label: string;
+  order?: number;
 } & (
   T[keyof T] extends Record<string, any>
     ? T[keyof T]
@@ -37,9 +42,23 @@ interface Filter<T extends Record<string, any>, V, F> {
 
   list: FilterListItem<T, V>[];
   createList(values: string[]): FilterListItem<T, V>[];
-  map: T
+  map: T,
+  valueMap: V,
 }
 
+function isFilter(v: any): v is Filter<any, any, any> {
+  return v && v[REACT_FILTER_KEY] === true;
+}
+function isDefaultFilter(v: any): v is Filter<any, any, any> {
+  return isFilter(v) && (v as any)[REACT_FILTER_DEFAULT_FILTER] === true;
+}
+
+function createFilterMap<T extends Record<string, string|{
+  label: string,
+  order?: number,
+}>>(map: T): T {
+  return map;
+}
 
 function createFilter<
   T extends Record<string, any>,
@@ -64,25 +83,37 @@ function createFilter<
   }) as any;
 
   (filter as any).map = map;
+  (filter as any).valueMap = valueMap;
 
   let keys = Object.keys(map);
   if (options.reverseList) keys = keys.reverse();
 
-  const _createList = () => keys.map((value: string, index: number) => {
-    let label = filter.map[value];
-    const rest: Record<string, any> = {};
-    if (label && isPlainObject(label)) {
-      const labelObj = label;
-      Object.keys(labelObj).forEach(key => {
-        if (key === 'label') label = labelObj[key];
-        else rest[key] = labelObj[key];
-      });
+  const _createList = () => {
+    let hasOrder: null|boolean = null;
+    const list: FilterListItem<T, V>[] = keys.map((value: string, index: number) => {
+      let label = filter.map[value];
+      const rest: FilterListItem<T, V> = {} as any;
+      if (label && isPlainObject(label)) {
+        const labelObj = label;
+        Object.keys(labelObj).forEach(key => {
+          if (key === 'label') label = labelObj[key];
+          else (rest as any)[key] = labelObj[key];
+        });
+      }
+      const item = { value, label: (label as any), ...(rest as any) };
+      const isContinue = options.onWalkListItem && options.onWalkListItem(item as any, index);
+      if (isContinue === false) return;
+      let ret = isPlainObject(isContinue) ? isContinue : item;
+      if (hasOrder === null) {
+        hasOrder = typeof ret.order === 'number';
+      }
+      return ret;
+    }).filter(Boolean);
+    if (hasOrder) {
+      list.sort((a, b) => (a.order  || 0) - (b.order  || 0));
     }
-    const item = { value, label: (label as any), ...rest };
-    const isContinue = options.onWalkListItem && options.onWalkListItem(item as any, index);
-    if (isContinue === false) return;
-    return isPlainObject(isContinue) ? isContinue : item;
-  }).filter(Boolean);
+    return list;
+  };
 
   let _list: ReturnType<typeof _createList>;
   Object.defineProperty((filter as any), 'list', {
@@ -127,6 +158,9 @@ function createFilter<
     }
   }
 
+  innumerable(filter, REACT_FILTER_KEY, true);
+  innumerable(filter, REACT_FILTER_DEFAULT_FILTER, !options.filter);
+
   return filter;
 }
 
@@ -137,5 +171,8 @@ export {
   FilterListItem,
   FilterEx as Filter,
 
+  isFilter,
+  isDefaultFilter,
+  createFilterMap,
   createFilter,
 };
