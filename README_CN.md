@@ -1,36 +1,36 @@
 # react-filter-utils
 
-A powerful and flexible filter utility library for React applications. Create type-safe filters with custom mapping, external methods, and advanced configuration options.
+一个功能强大且灵活的React应用程序过滤器工具库。创建类型安全的过滤器，支持自定义映射、外部方法和高级配置选项。
 
 [![NPM version](https://img.shields.io/npm/v/react-filter-utils.svg?style=flat)](https://npmjs.com/package/react-filter-utils)
 [![NPM downloads](https://img.shields.io/npm/dm/react-filter-utils.svg?style=flat)](https://npmjs.com/package/react-filter-utils)
 
 [English](https://github.com/gxlmyacc/react-filter-utils/blob/master/README.md) | [中文](https://github.com/gxlmyacc/react-filter-utils/blob/master/README_CN.md)
 
-## Features
+## 特性
 
-- 🎯 **Type-safe**: Full TypeScript support with comprehensive type definitions
-- 🔧 **Flexible**: Support for custom filter functions, external methods, and advanced options
-- 📋 **List Generation**: Automatic list generation for UI components
-- 🎨 **Customizable**: Configurable ordering, filtering, and transformation
-- ⚡ **Lightweight**: Zero dependencies, optimized for performance
-- 🔄 **Reactive**: Works seamlessly with React state management
+- 🎯 **类型安全**: 完整的TypeScript支持，提供全面的类型定义
+- 🔧 **灵活性强**: 支持自定义过滤器函数、外部方法和高级选项
+- 📋 **列表生成**: 为UI组件自动生成列表
+- 🎨 **可定制**: 可配置的排序、过滤和转换
+- ⚡ **轻量级**: 零依赖，针对性能优化
+- 🔄 **响应式**: 与React状态管理无缝协作
 
-## Installation
+## 安装
 
 ```bash
 npm install --save react-filter-utils
 ```
 
-or
+或
 
 ```bash
 yarn add react-filter-utils
 ```
 
-## Basic Usage
+## 基本用法
 
-### 1. Create a Simple Filter
+### 1. 创建简单过滤器
 
 ```typescript
 // filter.ts
@@ -48,7 +48,7 @@ const statusFilter = createFilter(statusMap);
 export default statusFilter;
 ```
 
-### 2. Use in React Component
+### 2. 在React组件中使用
 
 ```typescript
 // StatusSelector.tsx
@@ -79,11 +79,11 @@ function StatusSelector() {
 }
 ```
 
-## Advanced Usage
+## 高级用法
 
-### 1. Custom Value Mapping
+### 1. 自定义值映射
 
-When your filter values are different from the mapping keys, or when the mapping table's keys are numbers, you can use the `valueMap` parameter to define the corresponding key's constant enumeration name:
+当您的过滤器值与映射键不同时，或者映射表的key是数字时，您可以使用 `valueMap` 参数来定义对应key的常量枚举名称：
 
 ```typescript
 // filter.ts
@@ -108,9 +108,9 @@ const statusFilter = createFilter(statusMap, valueMap);
 export default statusFilter;
 ```
 
-### 2. Complex Object Mapping
+### 2. 复杂对象映射
 
-Support for objects with additional properties:
+支持具有附加属性的对象：
 
 ```typescript
 // filter.ts
@@ -142,9 +142,9 @@ const priorityFilter = createFilter(priorityMap);
 export default priorityFilter;
 ```
 
-### 3. External Methods
+### 3. 外部方法
 
-Add custom methods to your filter:
+为您的过滤器添加自定义方法：
 
 ```typescript
 // filter.ts
@@ -178,9 +178,9 @@ const statusFilter = createFilter(statusMap, null, {
 export default statusFilter;
 ```
 
-### 4. Custom Filter Function
+### 4. 自定义过滤器函数
 
-Override the default filter behavior:
+覆盖默认的过滤器行为：
 
 ```typescript
 // filter.ts
@@ -205,7 +205,7 @@ const statusFilter = createFilter(statusMap, null, {
 export default statusFilter;
 ```
 
-### 5. Advanced Configuration
+### 5. 高级配置
 
 ```typescript
 // filter.ts
@@ -219,12 +219,12 @@ const statusMap = {
 };
 
 const statusFilter = createFilter(statusMap, null, {
-  // Reverse the list order
+  // 反转列表顺序
   reverseList: true,
   
-  // Custom list item processing
+  // 自定义列表项处理
   onWalkListItem: (item, index) => {
-    // Add custom properties
+    // 添加自定义属性
     return {
       ...item,
       disabled: item.value === 'DELETED',
@@ -232,12 +232,12 @@ const statusFilter = createFilter(statusMap, null, {
     };
   },
   
-  // Custom list filtering
+  // 自定义列表过滤
   onGetList: (list) => {
     return list.filter(item => item.value !== 'DELETED');
   },
   
-  // External methods
+  // 外部方法
   external: {
     getActiveStatuses() {
       return this.list.filter(item => item.value === 'ACTIVE');
@@ -248,33 +248,32 @@ const statusFilter = createFilter(statusMap, null, {
 export default statusFilter;
 ```
 
-## API Reference
+## API 参考
 
 ### `createFilter(map, valueMap?, options?)`
 
-Creates a filter function with additional properties and methods.
+创建一个具有附加属性和方法的过滤器函数。
 
-#### Parameters
+#### 参数
 
-- `map` (Required): Object mapping keys to labels or label objects
-- `valueMap` (Optional): Object mapping keys to different values
-- `options` (Optional): Configuration options
+- `map` (必需): 将键映射到标签或标签对象的对象
+- `valueMap` (可选): 将键映射到不同值的对象
+- `options` (可选): 配置选项
 
+##### map
+将键映射到标签或标签对象的对象。
+`map` 参数定义了过滤器选项的基础数据结构。它是一个对象，其中每个键代表过滤器项的唯一标识符，值可以是字符串（用作标签）或对象（用于自定义更多属性）。
 
-#### map
-Object mapping keys to labels or label objects.
-The `map` parameter defines the base data structure for filter options. It is an object where each key represents a unique identifier for a filter item, and the value can be either a string (used as the label) or an object (for customizing more properties).
+**`map` 的值支持以下内置属性：**
 
-**The value of `map` supports the following built-in properties:**
+- `label` (`string`): 过滤器项的显示名称。如果值是字符串，则直接用作标签；如果是对象，则应明确指定 `label` 字段。
+- `order` (`number`, 可选): 自定义过滤器项在列表中的排序顺序。数字越小出现越早。
+- 其他自定义字段: 您可以在对象中添加任何自定义字段。这些字段将保留在生成的列表项中以供进一步扩展。
 
-- `label` (`string`): The display name of the filter item. If the value is a string, it is used directly as the label; if it is an object, you should explicitly specify the `label` field.
-- `order` (`number`, optional): Customizes the sort order of the filter item in the list. Lower numbers appear earlier.
-- Other custom fields: You can add any custom fields in the object. These fields will be preserved in the generated list items for further extension.
-
-**Example:**
+**示例：**
 
 ```js
-// simple mapping，the oder of the filter item in the list is determined by the key
+// 简单映射，过滤器项在列表中的顺序由键决定
 const statusMap = {
   1: 'Active',
   2: 'Inactive',
@@ -282,9 +281,9 @@ const statusMap = {
   4: 'Deleted'
 };
 ```
-or
+或
 ```js
-// custom the order of the filter item in the list by specifying the `order` field
+// 通过指定 `order` 字段自定义过滤器项在列表中的顺序
 const statusMap = {
   1: { label: 'Active', order: 2 },
   2: { label:  'Inactive', order: 1 },
@@ -293,27 +292,27 @@ const statusMap = {
 };
 ```
 
-#### Options
+##### options
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `reverseList` | `boolean` | Reverse the order of generated list |
-| `filter` | `Function` | Custom filter function |
-| `external` | `Object \| Function` | External methods to attach |
-| `onWalkListItem` | `Function` | Callback for each list item |
-| `onGetList` | `Function` | Customize the final list |
-| `onSetList` | `Function` | Handle list updates |
+| 选项 | 类型 | 描述 |
+|------|------|------|
+| `reverseList` | `boolean` | 反转生成列表的顺序 |
+| `filter` | `Function` | 自定义过滤器函数 |
+| `external` | `Object \| Function` | 要附加的外部方法 |
+| `onWalkListItem` | `Function` | 每个列表项的回调 |
+| `onGetList` | `Function` | 自定义最终列表 |
+| `onSetList` | `Function` | 处理列表更新 |
 
-### Filter Properties
+### 过滤器属性
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `list` | `FilterListItem[]` | Generated list for UI components |
-| `map` | `Object` | Original mapping object |
-| `valueMap` | `Object` | Value mapping object |
-| `createList(values?)` | `Function` | Create filtered list |
+| 属性 | 类型 | 描述 |
+|------|------|------|
+| `list` | `FilterListItem[]` | 为UI组件生成的列表 |
+| `map` | `Object` | 原始映射对象 |
+| `valueMap` | `Object` | 值映射对象 |
+| `createList(values?)` | `Function` | 创建过滤列表 |
 
-### FilterListItem Type
+### FilterListItem 类型
 
 ```typescript
 type FilterListItem<T, V> = {
@@ -323,40 +322,40 @@ type FilterListItem<T, V> = {
 } & (T[keyof T] extends Record<string, any> ? T[keyof T] : {});
 ```
 
-## Utility Functions
+## 工具函数
 
 ### `isFilter(value)`
 
-Check if a value is a filter created by this library.
+检查值是否是由此库创建的过滤器。
 
 ```typescript
 import { isFilter } from 'react-filter-utils';
 
 if (isFilter(myFilter)) {
-  console.log('This is a valid filter');
+  console.log('这是一个有效的过滤器');
 }
 ```
 
 ### `isDefaultFilter(value)`
 
-Check if a filter uses the default filter function.
+检查过滤器是否使用默认过滤器函数。
 
 ```typescript
 import { isDefaultFilter } from 'react-filter-utils';
 
 if (isDefaultFilter(myFilter)) {
-  console.log('This filter uses the default function');
+  console.log('此过滤器使用默认函数');
 }
 ```
 
-## TypeScript Support
+## TypeScript 支持
 
-The library provides full TypeScript support with comprehensive type definitions:
+该库提供完整的TypeScript支持，具有全面的类型定义：
 
 ```typescript
 import { createFilter, Filter, FilterListItem } from 'react-filter-utils';
 
-// Type-safe filter creation
+// 类型安全的过滤器创建
 const statusMap = {
   ACTIVE: 'Active',
   INACTIVE: 'Inactive'
@@ -364,14 +363,14 @@ const statusMap = {
 
 const statusFilter: Filter<typeof statusMap, undefined, any> = createFilter(statusMap);
 
-// Type-safe usage
+// 类型安全的使用
 const label: string = statusFilter('ACTIVE'); // 'Active'
 const list: FilterListItem<typeof statusMap, undefined>[] = statusFilter.list;
 ```
 
-## Examples
+## 示例
 
-### Form Validation Filter
+### 表单验证过滤器
 
 ```typescript
 // validationFilter.ts
@@ -395,7 +394,7 @@ const validationFilter = createFilter(validationMap, null, {
 export default validationFilter;
 ```
 
-### Multi-language Filter
+### 多语言过滤器
 
 ```typescript
 // languageFilter.ts
@@ -418,7 +417,6 @@ const languageFilter = createFilter(languageMap, null, {
 export default languageFilter;
 ```
 
-## License
+## 许可证
 
-[MIT](./LICENSE)
-
+[MIT](./LICENSE) 

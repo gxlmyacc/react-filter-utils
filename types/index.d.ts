@@ -11,6 +11,8 @@ type CreateFilterOptions<F extends Function, E, T extends Record<string, any>, V
         [key in keyof E]: E[key];
     });
     onWalkListItem?: (item: FilterListItem<T, V>, index: number) => void | boolean | Record<string, any>;
+    onGetList?: (list: FilterListItem<T, V>[]) => FilterListItem<T, V>[];
+    onSetList?: (list: FilterListItem<T, V>[]) => void;
 };
 type FilterListItem<T, V> = {
     value: V extends Record<string, infer U> ? U : keyof T;
@@ -31,5 +33,5 @@ declare function createFilterMap<T extends Record<string, string | {
     label: string;
     order?: number;
 }>>(map: T): T;
-declare function createFilter<T extends Record<string, any>, V extends Record<string, any> | undefined | null, E extends Record<string, any> | undefined | null, F extends FilterFunc<T, V>>(map: T, valueMap?: V, options?: CreateFilterOptions<F, E, T, V>): Filter<T, V, F> & (V extends Record<string, any> ? V extends infer T_1 extends Record<string, any> ? { [key in keyof T_1]: V[key]; } : never : { [key_1 in keyof T]: key_1; }) & { [key_2 in keyof E]: E[key_2]; };
+declare function createFilter<T extends Record<string, any>, V extends Record<string, any> | undefined | null, E extends Record<string, any> | undefined | null, F extends FilterFunc<T, V>>(map: T, valueMap?: V, options?: CreateFilterOptions<F, E, T, V>): Filter<T, V, F> & (V extends Record<string, any> ? V extends infer T_1 extends Record<string, any> ? { readonly [key in keyof T_1]: V[key]; } : never : { readonly [key_1 in keyof T]: key_1; }) & { [key_2 in keyof E]: E[key_2]; };
 export { FilterKeyType, CreateFilterOptions, FilterListItem, FilterEx as Filter, isFilter, isDefaultFilter, createFilterMap, createFilter, };

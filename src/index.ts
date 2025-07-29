@@ -14,10 +14,12 @@ type FilterEx<T extends Record<string, any>, V, F> = Filter<T, V, F> & {
 
 type CreateFilterOptions<F extends Function, E, T extends Record<string, any>, V> = {
   reverseList?: boolean,
-  filter?: F;
+  filter?: F,
   external?: { [key in keyof E]: E[key] }
    |((this: FilterEx<T, V, F>, filter: FilterEx<T, V, F>) => { [key in keyof E]: E[key] }),
-  onWalkListItem?: (item: FilterListItem<T, V>, index: number) => void|boolean|Record<string, any>;
+  onWalkListItem?: (item: FilterListItem<T, V>, index: number) => void|boolean|Record<string, any>,
+  onGetList?: (list: FilterListItem<T, V>[]) => FilterListItem<T, V>[],
+  onSetList?: (list: FilterListItem<T, V>[]) => void,
 }
 
 
@@ -71,8 +73,8 @@ function createFilter<
   options: CreateFilterOptions<F, E, T, V> = {}
 ) {
   type MapType = V extends Record<string, any>
-  ? { [key in keyof V]: V[key] }
-  : { [key in keyof T]: key };
+  ? { readonly [key in keyof V]: V[key] }
+  : { readonly [key in keyof T]: key };
 
   type FilterType = Filter<T, V, F> & MapType & { [key in keyof E]: E[key] };
 
@@ -119,9 +121,10 @@ function createFilter<
   Object.defineProperty((filter as any), 'list', {
     get() {
       if (!_list) _list = _createList();
-      return _list;
+      return options.onGetList ? options.onGetList(_list) : _list;
     },
     set(v) {
+      if (options.onSetList) options.onSetList(v);
       _list = v;
     },
     configurable: true,
