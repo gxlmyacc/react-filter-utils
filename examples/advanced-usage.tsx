@@ -20,7 +20,19 @@ const customStatusFilter = createFilter(customStatusMap, null, {
 });
 
 // 2. 带排序和自定义处理的过滤器
-const priorityMap = {
+type PriorityMapValue = {
+  label: string;
+  order: number;
+  color: string;
+  icon: string;
+  weight: number;
+  /** Set in `onWalkListItem`; optional on map entries */
+  disabled?: boolean;
+  tooltip?: string;
+  badge?: string;
+};
+
+const priorityMap: Record<'HIGH' | 'MEDIUM' | 'LOW', PriorityMapValue> = {
   HIGH: {
     label: 'High Priority',
     order: 1,
@@ -58,21 +70,24 @@ const priorityFilter = createFilter(priorityMap, null, {
 });
 
 // 3. 动态外部方法
-const roleMap = {
+type RoleKey = 'ADMIN' | 'MANAGER' | 'USER' | 'GUEST';
+
+const roleMap: Record<RoleKey, string> = {
   ADMIN: 'Administrator',
   MANAGER: 'Manager',
   USER: 'Regular User',
   GUEST: 'Guest User'
 };
 
+// 3b. 工厂形式：external(filter) { return { ... } }（无需 createExternalFactory）
 const roleFilter = createFilter(roleMap, null, {
   external(filter) {
     return {
       isAdmin(value: string) {
-        return value === this.ADMIN;
+        return value === filter.ADMIN;
       },
       isManager(value: string) {
-        return value === this.MANAGER;
+        return value === filter.MANAGER;
       },
       hasPermission(value: string, requiredRole: string) {
         const levels = { ADMIN: 4, MANAGER: 3, USER: 2, GUEST: 1 };
@@ -81,18 +96,26 @@ const roleFilter = createFilter(roleMap, null, {
         return userLevel >= requiredLevel;
       },
       getRoleHierarchy() {
-        return this.list.map(item => ({
+        return filter.list.map(item => ({
           role: item.value,
           label: item.label,
-          level: this.hasPermission(item.value, 'ADMIN') ? 'High' : 'Low'
+          level: this.hasPermission(item.value, 'ADMIN') ? 'High' : 'Low',
         }));
-      }
+      },
     };
-  }
+  },
 });
 
 // 4. 表单验证过滤器
-const validationMap = {
+type ValidationKey =
+  | 'REQUIRED'
+  | 'EMAIL'
+  | 'MIN_LENGTH'
+  | 'MAX_LENGTH'
+  | 'PATTERN'
+  | 'UNIQUE';
+
+const validationMap: Record<ValidationKey, string> = {
   REQUIRED: 'This field is required',
   EMAIL: 'Please enter a valid email address',
   MIN_LENGTH: 'Minimum length is {min} characters',
@@ -103,7 +126,11 @@ const validationMap = {
 
 const validationFilter = createFilter(validationMap, null, {
   external: {
-    getMessage(type: string, field: string = 'field', params: Record<string, any> = {}) {
+    getMessage(
+      type: ValidationKey,
+      field: string = 'field',
+      params: Record<string, string | number> = {},
+    ) {
       let message = this(type);
 
       // 替换字段名
@@ -111,7 +138,7 @@ const validationFilter = createFilter(validationMap, null, {
 
       // 替换参数
       Object.keys(params).forEach(key => {
-        message = message.replace(`{${key}}`, params[key]);
+        message = message.replace(`{${key}}`, String(params[key]));
       });
 
       return message;
@@ -135,7 +162,19 @@ const validationFilter = createFilter(validationMap, null, {
 });
 
 // 5. 多语言过滤器
-const languageMap = {
+type LanguageKey = 'EN' | 'ES' | 'FR' | 'DE' | 'AR' | 'HE';
+
+type LanguageMapValue = {
+  label: string;
+  code: string;
+  flag: string;
+  rtl: boolean;
+  /** Set in `onWalkListItem` */
+  displayText?: string;
+  direction?: 'ltr' | 'rtl';
+};
+
+const languageMap: Record<LanguageKey, LanguageMapValue> = {
   EN: { label: 'English', code: 'en', flag: '🇺🇸', rtl: false },
   ES: { label: 'Español', code: 'es', flag: '🇪🇸', rtl: false },
   FR: { label: 'Français', code: 'fr', flag: '🇫🇷', rtl: false },
@@ -167,12 +206,20 @@ const languageFilter = createFilter(languageMap, null, {
     },
     getSupportedLanguages() {
       return this.list.map(item => item.code);
-    }
-  }
+    },
+  },
 });
 
 // 6. 数据表格过滤器
-const tableFilterMap = {
+type TableColumnKey = 'NAME' | 'EMAIL' | 'STATUS' | 'CREATED_AT' | 'UPDATED_AT';
+
+type TableColumnMapValue = {
+  label: string;
+  field: string;
+  sortable: boolean;
+};
+
+const tableFilterMap: Record<TableColumnKey, TableColumnMapValue> = {
   NAME: { label: 'Name', field: 'name', sortable: true },
   EMAIL: { label: 'Email', field: 'email', sortable: true },
   STATUS: { label: 'Status', field: 'status', sortable: false },
@@ -186,35 +233,38 @@ const tableFilter = createFilter(tableFilterMap, null, {
       return this.list.filter(item => item.sortable);
     },
     getColumnField(column: string) {
-      const item = this.list.find(item => item.value === column);
+      const item = this.list.find(entry => entry.value === column);
       return item?.field;
     },
-    formatColumnValue(column: string, value: any) {
-      const item = this.list.find(item => item.value === column);
+    formatColumnValue(column: string, value: unknown) {
+      const item = this.list.find(entry => entry.value === column);
       if (!item) return value;
 
       // 根据列类型格式化值
       switch (item.field) {
         case 'createdAt':
         case 'updatedAt':
-          return new Date(value).toLocaleDateString();
+          return new Date(value as string | number | Date).toLocaleDateString();
         case 'email':
-          return value.toLowerCase();
+          return String(value).toLowerCase();
         default:
           return value;
       }
-    }
-  }
+    },
+  },
 });
 
 // React组件示例
+type PriorityKey = keyof typeof priorityMap;
+type CustomStatusKey = keyof typeof customStatusMap;
+
 function AdvancedUsageExample() {
-  const [customStatus, setCustomStatus] = useState('');
-  const [priority, setPriority] = useState('');
-  const [role, setRole] = useState('');
-  const [validationType, setValidationType] = useState('');
-  const [language, setLanguage] = useState('');
-  const [tableColumn, setTableColumn] = useState('');
+  const [customStatus, setCustomStatus] = useState<CustomStatusKey | ''>('');
+  const [priority, setPriority] = useState<PriorityKey | ''>('');
+  const [role, setRole] = useState<RoleKey | ''>('');
+  const [validationType, setValidationType] = useState<ValidationKey | ''>('');
+  const [language, setLanguage] = useState<LanguageKey | ''>('');
+  const [tableColumn, setTableColumn] = useState<TableColumnKey | ''>('');
 
   useEffect(() => {
     // 演示外部方法调用
@@ -233,7 +283,10 @@ function AdvancedUsageExample() {
 
       <div style={{ marginBottom: '20px' }}>
         <h3>1. Custom Filter Function</h3>
-        <select value={customStatus} onChange={e => setCustomStatus(e.target.value)}>
+        <select
+          value={customStatus}
+          onChange={e => setCustomStatus(e.target.value as CustomStatusKey | '')}
+        >
           <option value="">Select Status</option>
           {customStatusFilter.list.map(item => (
             <option key={item.value} value={item.value}>
@@ -246,7 +299,10 @@ function AdvancedUsageExample() {
 
       <div style={{ marginBottom: '20px' }}>
         <h3>2. Priority Filter with Custom Processing</h3>
-        <select value={priority} onChange={e => setPriority(e.target.value)}>
+        <select
+          value={priority}
+          onChange={e => setPriority(e.target.value as PriorityKey | '')}
+        >
           <option value="">Select Priority</option>
           {priorityFilter.list.map(item => (
             <option
@@ -259,12 +315,12 @@ function AdvancedUsageExample() {
             </option>
           ))}
         </select>
-        <p>Selected: {priorityFilter(priority)}</p>
+        <p>Selected: {priority ? priorityFilter(priority) : '—'}</p>
       </div>
 
       <div style={{ marginBottom: '20px' }}>
         <h3>3. Role Filter with Dynamic Methods</h3>
-        <select value={role} onChange={e => setRole(e.target.value)}>
+        <select value={role} onChange={e => setRole(e.target.value as RoleKey | '')}>
           <option value="">Select Role</option>
           {roleFilter.list.map(item => (
             <option key={item.value} value={item.value}>
@@ -283,7 +339,10 @@ function AdvancedUsageExample() {
 
       <div style={{ marginBottom: '20px' }}>
         <h3>4. Validation Filter</h3>
-        <select value={validationType} onChange={e => setValidationType(e.target.value)}>
+        <select
+          value={validationType}
+          onChange={e => setValidationType(e.target.value as ValidationKey | '')}
+        >
           <option value="">Select Validation Type</option>
           {validationFilter.list.map(item => (
             <option key={item.value} value={item.value}>
@@ -301,7 +360,10 @@ function AdvancedUsageExample() {
 
       <div style={{ marginBottom: '20px' }}>
         <h3>5. Language Filter</h3>
-        <select value={language} onChange={e => setLanguage(e.target.value)}>
+        <select
+          value={language}
+          onChange={e => setLanguage(e.target.value as LanguageKey | '')}
+        >
           <option value="">Select Language</option>
           {languageFilter.list.map(item => (
             <option key={item.value} value={item.value}>
@@ -320,7 +382,10 @@ function AdvancedUsageExample() {
 
       <div style={{ marginBottom: '20px' }}>
         <h3>6. Table Column Filter</h3>
-        <select value={tableColumn} onChange={e => setTableColumn(e.target.value)}>
+        <select
+          value={tableColumn}
+          onChange={e => setTableColumn(e.target.value as TableColumnKey | '')}
+        >
           <option value="">Select Column</option>
           {tableFilter.list.map(item => (
             <option key={item.value} value={item.value}>

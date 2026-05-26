@@ -10,10 +10,11 @@ analyzer/
 .DS_Store
 */.DS_Store
 plugin/
-esm
+cjs
 es
 .history/
-drawer/esm
+drawer/cjs
 drawer/es
 dist
+coverage/
 

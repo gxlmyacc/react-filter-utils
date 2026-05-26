@@ -13,10 +13,26 @@ A powerful and flexible filter utility library for React applications. Create ty
 - 🔧 **Flexible**: Support for custom filter functions, external methods, and advanced options
 - 📋 **List Generation**: Automatic list generation for UI components
 - 🎨 **Customizable**: Configurable ordering, filtering, and transformation
-- ⚡ **Lightweight**: Zero dependencies, optimized for performance
-- 🔄 **Reactive**: Works seamlessly with React state management
+- ⚡ **Lightweight**: Small runtime footprint; `import` uses the modern ESM build without polyfills
+- 📦 **Dual builds**: `require` → CJS (`cjs/`, Chrome 49 + optional `core-js` polyfills); `import` → ESM (`es/`, for modern bundlers)
+- 🔄 **React-friendly**: Framework-agnostic core; pairs well with React UI components (e.g. Select options from `filter.list`)
+
+## Peer & runtime dependencies
+
+- **peer**: `react >= 16.8` (used in app code, not imported by this package at runtime)
+- **dependency**: `core-js@3` (only referenced by the CJS `cjs/` build when polyfills are needed)
+
+## Runtime environments
+
+- **Node.js** (`engines >= 12`): required for developing and testing this package; not required in your app unless you `require()` the library on the server.
+- **Browsers (CJS / `cjs/`)**: Babel target Chrome >= 49; may load `core-js@3` polyfills when you use `require('react-filter-utils')`.
+- **Bundlers (ESM / `es/`)**: use `import`; no polyfills are injected — your app and bundler define browser/Node compatibility.
+
+> **Breaking change in v0.2.0**: the CommonJS output directory was renamed from `esm/` to `cjs/`. Entry points in `package.json` `main` / `exports.require` point to `cjs/`; no code API changes.
 
 ## Installation
+
+After cloning this repo, run `npm install` then `npm run build` to generate `cjs/`, `es/`, and `types/`.
 
 ```bash
 npm install --save react-filter-utils

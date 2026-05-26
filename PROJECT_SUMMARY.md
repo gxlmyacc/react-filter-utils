@@ -23,11 +23,22 @@ React Filter Utils is a powerful and flexible TypeScript library designed to sim
 - Configurable ordering and filtering
 - Lazy evaluation for performance
 
-### ⚡ Performance
-- Zero runtime dependencies
-- Optimized property access
-- Memoized list generation
-- Lightweight bundle size
+### ⚡ Performance & distribution
+- Dual builds: `cjs/` (CommonJS, Chrome 49 + optional `core-js@3` polyfills) and `es/` (ESM, no polyfills)
+- Runtime dependency: `core-js@3` (only when the CJS build pulls polyfills)
+- Peer dependency: `react >= 16.8` (used in app code; not imported by the library itself)
+- Lazy `list` generation with optional `onGetList` / `onSetList` hooks
+- Small source footprint (~240 lines in `src/`)
+
+## Build & tooling
+
+| Output | Format | Path | Notes |
+|--------|--------|------|--------|
+| CJS | CommonJS | `cjs/` | `require`; Chrome >= 49; `useBuiltIns: 'usage'` + `core-js@3` |
+| ESM | ES modules | `es/` | `import`; modern bundlers; no polyfills |
+| Types | `.d.ts` | `types/` | `tsc --emitDeclarationOnly` |
+
+Scripts: `npm run ci` (typecheck, lint, test, build). GitHub Actions runs CI on push/PR. Publishing runs `prepublishOnly` → full `ci` (no build on `npm install`).
 
 ## Architecture
 

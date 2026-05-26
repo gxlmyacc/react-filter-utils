@@ -13,10 +13,26 @@
 - 🔧 **灵活性强**: 支持自定义过滤器函数、外部方法和高级选项
 - 📋 **列表生成**: 为UI组件自动生成列表
 - 🎨 **可定制**: 可配置的排序、过滤和转换
-- ⚡ **轻量级**: 零依赖，针对性能优化
-- 🔄 **响应式**: 与React状态管理无缝协作
+- ⚡ **轻量级**: 运行时体积小；`import` 使用现代 ESM 构建，不注入 polyfill
+- 📦 **双构建**: `require` → CJS（`cjs/`，Chrome 49 + 按需 `core-js`）；`import` → ESM（`es/`，面向现代打包器）
+- 🔄 **适配 React**: 核心与框架无关，便于在 React 组件中使用（如用 `filter.list` 渲染 Select 选项）
+
+## 对等依赖与运行时依赖
+
+- **peer**：`react >= 16.8`（在业务代码中使用，本包运行时不会 import React）
+- **dependency**：`core-js@3`（仅 CJS 的 `cjs/` 产物在需要时引用 polyfill）
+
+## 运行时环境
+
+- **Node.js**（`engines >= 12`）：用于本仓库的开发与测试；业务应用仅在服务端 `require()` 本库时才需要 Node。
+- **浏览器（CJS / `cjs/`）**：构建目标 Chrome >= 49；使用 `require('react-filter-utils')` 时可能加载 `core-js@3` polyfill。
+- **打包器（ESM / `es/`）**：使用 `import`；不注入 polyfill，兼容性由应用与打包器决定。
+
+> **v0.2.0 破坏性变更**：CommonJS 输出目录由 `esm/` 重命名为 `cjs/`。`package.json` 的 `main` / `exports.require` 已指向 `cjs/`，对外 API 无变化。
 
 ## 安装
+
+克隆本仓库后请执行 `npm install`，再运行 `npm run build` 生成 `cjs/`、`es/` 与 `types/`。
 
 ```bash
 npm install --save react-filter-utils

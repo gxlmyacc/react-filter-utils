@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": true,
+    "declarationMap": false,
+    "declarationDir": "types",
+    "outDir": "cjs",
+    "sourceMap": true
+  },
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "types",
+    "demo",
+    "cjs",
+    "es",
+    "build",
+    "tests"
+  ]
+}

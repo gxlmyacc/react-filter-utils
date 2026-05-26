@@ -23,11 +23,22 @@ React Filter Utils 是一个功能强大且灵活的 TypeScript 库，专为简�
 - 可配置的排序和过滤
 - 性能优化的惰性求值
 
-### ⚡ 性能
-- 零运行时依赖
-- 优化的属性访问
-- 记忆化的列表生成
-- 轻量级包大小
+### ⚡ 性能与分发
+- 双构建：`cjs/`（CommonJS，Chrome 49 + 按需 `core-js@3`）与 `es/`（ESM，无 polyfill）
+- 运行时依赖：`core-js@3`（仅 CJS 构建按需引用）
+- 对等依赖：`react >= 16.8`（在业务代码中使用，库本体不 import React）
+- `list` 惰性生成，支持 `onGetList` / `onSetList`
+- 源码体量小（`src/` 约 240 行）
+
+## 构建与工具链
+
+| 产物 | 格式 | 路径 | 说明 |
+|------|------|------|------|
+| CJS | CommonJS | `cjs/` | `require`；Chrome >= 49；`useBuiltIns: 'usage'` + `core-js@3` |
+| ESM | ES 模块 | `es/` | `import`；现代打包器；无 polyfill |
+| 类型 | `.d.ts` | `types/` | `tsc --emitDeclarationOnly` |
+
+脚本：`npm run ci`（typecheck、lint、test、build）。GitHub Actions 在 push/PR 时执行 CI。发布前 `prepublishOnly` 跑完整 `ci`（`npm install` 不再自动 build）。
 
 ## 架构
 

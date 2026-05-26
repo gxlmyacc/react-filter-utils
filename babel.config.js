@@ -1,44 +1,31 @@
-const config = {
+// BUILD_ENV=cjs → cjs/（CommonJS）：Chrome 49 + 按需 polyfill，供 require 旧环境使用
+// BUILD_ENV=es  → es/（ESM）：仅语法转换，无 polyfill，供现代打包器 import
+const cjsConfig = {
   presets: [
     [
       '@babel/preset-env',
       {
         modules: false,
         useBuiltIns: 'usage',
-        corejs: 2,
-        targets: { browsers: ['Chrome >= 31'] }
-      }
+        corejs: 3,
+        targets: { browsers: ['Chrome >= 49'] },
+      },
     ],
-    '@babel/typescript',
-    '@babel/preset-react'
+    '@babel/preset-typescript',
   ],
   plugins: [
-    ['@babel/plugin-proposal-decorators', { legacy: true }],
-    '@babel/plugin-proposal-class-properties',
-    '@babel/plugin-transform-strict-mode',
-    '@babel/plugin-transform-parameters',
-    '@babel/plugin-transform-destructuring',
+    '@babel/plugin-transform-class-properties',
+    '@babel/plugin-transform-object-rest-spread',
     '@babel/plugin-transform-modules-commonjs',
-    '@babel/plugin-proposal-object-rest-spread',
-    '@babel/plugin-proposal-json-strings',
-    '@babel/plugin-transform-spread',
-    '@babel/plugin-proposal-export-default-from',
-    '@babel/plugin-proposal-export-namespace-from',
-    '@babel/plugin-syntax-dynamic-import',
-    '@babel/plugin-syntax-import-meta',
-    '@babel/plugin-transform-arrow-functions',
-    'babel-plugin-define-variables'
-  ]
+  ],
 };
 
 module.exports = process.env.BUILD_ENV === 'es'
   ? {
-    presets: [
-      '@babel/typescript',
-    ],
+    presets: ['@babel/preset-typescript'],
     plugins: [
-      '@babel/proposal-class-properties',
-      '@babel/proposal-object-rest-spread'
-    ]
+      '@babel/plugin-transform-class-properties',
+      '@babel/plugin-transform-object-rest-spread',
+    ],
   }
-  : config;
+  : cjsConfig;
