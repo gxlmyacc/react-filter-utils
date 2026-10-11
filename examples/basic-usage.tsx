@@ -10,22 +10,22 @@ const statusMap = {
   INACTIVE: 'Inactive',
   PENDING: 'Pending Review',
   DELETED: 'Deleted'
-};
+} as const;
 
 const statusFilter = createFilter(statusMap);
 
 // 2. 带值映射的过滤器
 const priorityMap = {
-  HIGH: 'High Priority',
-  MEDIUM: 'Medium Priority',
-  LOW: 'Low Priority'
-};
+  1: 'High Priority',
+  2: 'Medium Priority',
+  3: 'Low Priority'
+} as const;
 
 const priorityValueMap = {
   HIGH: '1',
   MEDIUM: '2',
   LOW: '3'
-};
+} as const;
 
 const priorityFilter = createFilter(priorityMap, priorityValueMap);
 
@@ -49,7 +49,7 @@ const categoryMap = {
     color: '#faad14',
     icon: '💼'
   }
-};
+} as const;
 
 const categoryFilter = createFilter(categoryMap);
 
@@ -58,7 +58,12 @@ const roleMap = {
   ADMIN: 'Administrator',
   USER: 'Regular User',
   GUEST: 'Guest User'
-};
+} as const;
+
+type StatusKey = keyof typeof statusMap;
+type PriorityValue = typeof priorityFilter.list[number]['value'];
+type CategoryKey = keyof typeof categoryMap;
+type RoleKey = keyof typeof roleMap;
 
 const roleFilter = createFilter(roleMap, null, {
   external: {
@@ -69,19 +74,19 @@ const roleFilter = createFilter(roleMap, null, {
       const levels = { ADMIN: 3, USER: 2, GUEST: 1 };
       return levels[value as keyof typeof levels] || 0;
     },
-    logRoleChange(value: string) {
+    logRoleChange(value: RoleKey) {
       console.log(`Role changed to: ${this(value)}`);
     }
   }
 });
 
 function BasicUsageExample() {
-  const [status, setStatus] = useState('');
-  const [priority, setPriority] = useState('');
-  const [category, setCategory] = useState('');
-  const [role, setRole] = useState('');
+  const [status, setStatus] = useState<StatusKey>();
+  const [priority, setPriority] = useState<PriorityValue>();
+  const [category, setCategory] = useState<CategoryKey>();
+  const [role, setRole] = useState<RoleKey>();
 
-  const handleRoleChange = (value: string) => {
+  const handleRoleChange = (value: RoleKey) => {
     setRole(value);
     roleFilter.logRoleChange(value);
   };
@@ -94,7 +99,7 @@ function BasicUsageExample() {
       <Card title="1. Basic Status Filter" size="small">
         <Space direction="vertical" style={{ width: '100%' }}>
           <Text>Select Status:</Text>
-          <Select
+          <Select<StatusKey>
             value={status}
             onChange={setStatus}
             placeholder="Choose status"
@@ -106,7 +111,7 @@ function BasicUsageExample() {
               </Select.Option>
             ))}
           </Select>
-          <Text>Selected: <strong>{statusFilter(status)}</strong></Text>
+          <Text>Selected: <strong>{status ? statusFilter(status) : ''}</strong></Text>
           <Text type="secondary">
             Available values: {Object.keys(statusFilter.map).join(', ')}
           </Text>
@@ -117,7 +122,7 @@ function BasicUsageExample() {
       <Card title="2. Priority Filter with Value Mapping" size="small">
         <Space direction="vertical" style={{ width: '100%' }}>
           <Text>Select Priority:</Text>
-          <Select
+          <Select<PriorityValue>
             value={priority}
             onChange={setPriority}
             placeholder="Choose priority"
@@ -129,9 +134,9 @@ function BasicUsageExample() {
               </Select.Option>
             ))}
           </Select>
-          <Text>Selected: <strong>{priorityFilter(priority)}</strong></Text>
+          <Text>Selected: <strong>{priority ? priorityFilter(priority) : ''}</strong></Text>
           <Text type="secondary">
-            Internal value: {priorityFilter.valueMap[priority as keyof typeof priorityValueMap]}
+            Internal value: {priority}
           </Text>
         </Space>
       </Card>
@@ -140,7 +145,7 @@ function BasicUsageExample() {
       <Card title="3. Category Filter with Complex Objects" size="small">
         <Space direction="vertical" style={{ width: '100%' }}>
           <Text>Select Category:</Text>
-          <Select
+          <Select<CategoryKey>
             value={category}
             onChange={setCategory}
             placeholder="Choose category"
@@ -154,7 +159,7 @@ function BasicUsageExample() {
               </Select.Option>
             ))}
           </Select>
-          <Text>Selected: <strong>{categoryFilter(category)}</strong></Text>
+          <Text>Selected: <strong>{category ? categoryFilter(category) : ''}</strong></Text>
           {category && (
             <Text type="secondary">
               Order: {categoryFilter.list.find(item => item.value === category)?.order}
@@ -167,7 +172,7 @@ function BasicUsageExample() {
       <Card title="4. Role Filter with External Methods" size="small">
         <Space direction="vertical" style={{ width: '100%' }}>
           <Text>Select Role:</Text>
-          <Select
+          <Select<RoleKey>
             value={role}
             onChange={handleRoleChange}
             placeholder="Choose role"
@@ -179,7 +184,7 @@ function BasicUsageExample() {
               </Select.Option>
             ))}
           </Select>
-          <Text>Selected: <strong>{roleFilter(role)}</strong></Text>
+          <Text>Selected: <strong>{role ? roleFilter(role) : ''}</strong></Text>
           {role && (
             <Space>
               <Text type="secondary">

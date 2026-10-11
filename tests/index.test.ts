@@ -60,10 +60,10 @@ describe('createFilter', () => {
     it('应生成与 map 键顺序一致的列表', () => {
       const filter = createFilter(statusMap);
       expect(filter.list).toEqual([
-        { value: 'ACTIVE', label: 'Active' },
-        { value: 'INACTIVE', label: 'Inactive' },
-        { value: 'PENDING', label: 'Pending Review' },
-        { value: 'DELETED', label: 'Deleted' },
+        { value: 'ACTIVE', label: 'Active', order: 0 },
+        { value: 'INACTIVE', label: 'Inactive', order: 1 },
+        { value: 'PENDING', label: 'Pending Review', order: 2 },
+        { value: 'DELETED', label: 'Deleted', order: 3 },
       ]);
     });
 
@@ -88,7 +88,7 @@ describe('createFilter', () => {
       expect(filter('HIGH')).toBe('High');
     });
 
-    it('部分项无 order 时排序应视为 0', () => {
+    it('部分项无 order 时使用遍历下标', () => {
       const map = {
         A: { label: 'A', order: 2 },
         B: { label: 'B' },
@@ -101,7 +101,7 @@ describe('createFilter', () => {
     it('map 值为空字符串时不应展开对象字段', () => {
       const map = { EMPTY: '' };
       const filter = createFilter(map);
-      expect(filter.list).toEqual([{ value: 'EMPTY', label: '' }]);
+      expect(filter.list).toEqual([{ value: 'EMPTY', label: '', order: 0 }]);
     });
 
     it('list 应惰性初始化并缓存', () => {
@@ -157,7 +157,9 @@ describe('createFilter', () => {
       const descriptorSpy = jest
         .spyOn(Object, 'getOwnPropertyDescriptor')
         .mockImplementation((target, key) => {
-          if (key === 'GHOST') return undefined;
+          if (key === 'GHOST') {
+            return undefined;
+          }
           return getDescriptor(target, key);
         });
       try {
@@ -280,7 +282,9 @@ describe('createFilter', () => {
   describe('options', () => {
     it('自定义 filter 函数应覆盖默认行为', () => {
       const customFilter = (value: string, defaultLabel = 'Unknown') => {
-        if (!value) return 'No Status';
+        if (!value) {
+          return 'No Status';
+        }
         return statusMap[value as keyof typeof statusMap] || defaultLabel;
       };
       const filter = createFilter(statusMap, null, { filter: customFilter });

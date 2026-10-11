@@ -1,11 +1,13 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "types": ["jest", "node"],
     "noEmit": true
   },
   "include": [
     "src",
-    "tests"
+    "tests",
+    "*.config.js"
   ],
   "exclude": [
     "node_modules",

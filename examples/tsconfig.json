@@ -1,6 +1,7 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
+    "rootDir": "..",
     "noEmit": true,
     "noImplicitThis": true,
     "jsx": "react-jsx",
@@ -8,6 +9,6 @@
       "react-filter-utils": ["../src/index.ts"]
     }
   },
-  "include": ["./advanced-usage.tsx"],
+  "include": ["./*.tsx"],
   "exclude": ["node_modules"]
 }

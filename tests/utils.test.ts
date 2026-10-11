@@ -1,6 +1,33 @@
-import { isPlainObject, innumerable } from '../src/utils';
+import { isPlainObject, innumerable, defineProperty, copyPropertyDescriptors } from '../src/utils';
 
 describe('utils', () => {
+  it('copies selected descriptors without invoking getters and preserves shared setter state', () => {
+    let value = 1;
+    const getter = jest.fn(() => value);
+    const setter = jest.fn((next: number) => {
+      value = next;
+    });
+    const source = {};
+    defineProperty(source, 'counter', { get: getter, set: setter, enumerable: false, configurable: true });
+    defineProperty(source, 'fixed', { value: 3, writable: false, enumerable: true });
+    const target: Record<string, number> = {};
+    expect(copyPropertyDescriptors(target, source, ['counter', 'fixed', 'missing'])).toBe(target);
+    expect(getter).not.toHaveBeenCalled();
+    expect(Object.getOwnPropertyDescriptor(target, 'counter')).toEqual(Object.getOwnPropertyDescriptor(source, 'counter'));
+    expect(Object.getOwnPropertyDescriptor(target, 'fixed')).toEqual(Object.getOwnPropertyDescriptor(source, 'fixed'));
+    expect(Object.prototype.hasOwnProperty.call(target, 'missing')).toBe(false);
+    target.counter = 2;
+    expect(target.counter).toBe(2);
+    expect(setter).toHaveBeenCalledWith(2);
+  });
+
+  it('preserves native errors when a non-configurable property is replaced', () => {
+    const target = {};
+    const symbol = Symbol('constant');
+    expect(defineProperty(target, symbol, { value: 1 })).toBe(target);
+    expect(() => defineProperty(target, symbol, { value: 2 })).toThrow(TypeError);
+  });
+
   describe('isPlainObject', () => {
     it('应识别普通对象', () => {
       expect(isPlainObject({})).toBe(true);

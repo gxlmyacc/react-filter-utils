@@ -7,11 +7,15 @@ const customStatusMap = {
   INACTIVE: 'Inactive',
   PENDING: 'Pending Review',
   DELETED: 'Deleted'
-};
+} as const;
 
 const customFilter = (value: string, defaultLabel: string = 'Unknown') => {
-  if (!value) return 'No Status';
-  if (value === 'DELETED') return '❌ Deleted';
+  if (!value) {
+    return 'No Status';
+  }
+  if (value === 'DELETED') {
+    return '❌ Deleted';
+  }
   return customStatusMap[value as keyof typeof customStatusMap] || defaultLabel;
 };
 
@@ -54,7 +58,7 @@ const priorityMap: Record<'HIGH' | 'MEDIUM' | 'LOW', PriorityMapValue> = {
     icon: '📌',
     weight: 10
   }
-};
+} as const;
 
 const priorityFilter = createFilter(priorityMap, null, {
   onWalkListItem: (item, index) => ({
@@ -122,7 +126,7 @@ const validationMap: Record<ValidationKey, string> = {
   MAX_LENGTH: 'Maximum length is {max} characters',
   PATTERN: 'Please match the required pattern',
   UNIQUE: 'This value must be unique'
-};
+} as const;
 
 const validationFilter = createFilter(validationMap, null, {
   external: {
@@ -181,7 +185,7 @@ const languageMap: Record<LanguageKey, LanguageMapValue> = {
   DE: { label: 'Deutsch', code: 'de', flag: '🇩🇪', rtl: false },
   AR: { label: 'العربية', code: 'ar', flag: '🇸🇦', rtl: true },
   HE: { label: 'עברית', code: 'he', flag: '🇮🇱', rtl: true }
-};
+} as const;
 
 const languageFilter = createFilter(languageMap, null, {
   reverseList: false,
@@ -225,7 +229,7 @@ const tableFilterMap: Record<TableColumnKey, TableColumnMapValue> = {
   STATUS: { label: 'Status', field: 'status', sortable: false },
   CREATED_AT: { label: 'Created At', field: 'createdAt', sortable: true },
   UPDATED_AT: { label: 'Updated At', field: 'updatedAt', sortable: true }
-};
+} as const;
 
 const tableFilter = createFilter(tableFilterMap, null, {
   external: {
@@ -238,7 +242,9 @@ const tableFilter = createFilter(tableFilterMap, null, {
     },
     formatColumnValue(column: string, value: unknown) {
       const item = this.list.find(entry => entry.value === column);
-      if (!item) return value;
+      if (!item) {
+        return value;
+      }
 
       // 根据列类型格式化值
       switch (item.field) {

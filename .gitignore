@@ -12,6 +12,7 @@ analyzer/
 plugin/
 cjs
 es
+.codegraph
 .history/
 drawer/cjs
 drawer/es

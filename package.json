@@ -1,6 +1,6 @@
 {
   "name": "react-filter-utils",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "filter utils for react",
   "keywords": [
     "react",
@@ -39,11 +39,11 @@
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.typecheck.json",
     "typecheck:examples": "tsc --noEmit -p examples/tsconfig.json",
-    "lint": "eslint src tests",
+    "lint": "eslint src tests examples *.config.js eslint.config.mjs",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "ci": "npm run typecheck && npm run lint && npm test && npm run build",
+    "ci": "npm run typecheck && npm run typecheck:examples && npm run lint && npm test && npm run build",
     "build": "npm run build:types && npm run build:cjs && npm run build:es",
     "build:types": "tsc -p tsconfig.build.json --emitDeclarationOnly",
     "build:cjs": "cross-env BUILD_ENV=cjs babel src -d cjs --extensions \".ts,.tsx\" --source-maps",
@@ -72,11 +72,14 @@
     "@eslint/js": "^9.39.1",
     "@types/jest": "^30.0.0",
     "@types/react": "^18.3.0",
+    "antd": "^6.6.5",
     "babel-jest": "^30.4.1",
     "cross-env": "^5.2.0",
     "eslint": "^9.39.1",
     "jest": "^30.4.2",
-    "typescript": "^5.8.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^6.0.3",
     "typescript-eslint": "^8.46.4"
   }
 }

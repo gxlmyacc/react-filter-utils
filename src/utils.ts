@@ -9,6 +9,23 @@ function isPlainObject(obj: any): obj is Record<string, any> {
   return _toString.call(obj) === '[object Object]';
 }
 
+/** Defines a property without changing the supplied descriptor. */
+function defineProperty<T extends object>(obj: T, key: PropertyKey, descriptor: PropertyDescriptor): T {
+  Object.defineProperty(obj, key, descriptor);
+  return obj;
+}
+
+/** Copies selected own property descriptors without evaluating getters. */
+function copyPropertyDescriptors<T extends object>(target: T, source: object, keys: string[]): T {
+  keys.forEach(key => {
+    const descriptor = Object.getOwnPropertyDescriptor(source, key);
+    if (descriptor) {
+      defineProperty(target, key, descriptor);
+    }
+  });
+  return target;
+}
+
 /**
  * Defines a property on `obj` (non-enumerable by default) and returns `obj`.
  * @param obj Target object
@@ -23,11 +40,12 @@ function innumerable<T extends object>(
   value: any,
   options: PropertyDescriptor = { configurable: true }
 ) {
-  Object.defineProperty(obj, key, { value, ...options });
-  return obj;
+  return defineProperty(obj, key, { value, ...options });
 }
 
 export {
   isPlainObject,
+  defineProperty,
+  copyPropertyDescriptors,
   innumerable,
 };
